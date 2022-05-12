@@ -1,0 +1,125 @@
+## START ipsec phases
+# ipsec phase1
+config vpn ipsec phase1-interface
+    edit "{0}_1"
+        set interface "{8}"
+        set local-gw {9}
+        set keylife 28800
+        set peertype any
+        set net-device disable
+        set proposal aes128-sha1
+        set aggregate-member enable
+        set comments "{1}"
+        set dhgrp 2
+        set nattraversal disable
+        set remote-gw {2}
+        set psksecret {3}
+    next
+    edit "{0}_2"
+        set interface "{8}"
+        set local-gw {9}
+        set keylife 28800
+        set peertype any
+        set net-device disable
+        set proposal aes128-sha1
+        set aggregate-member enable
+        set comments "{1}"
+        set dhgrp 2
+        set nattraversal disable
+        set remote-gw {4}
+        set psksecret {5}
+    next
+end
+# ipsec phase2
+config vpn ipsec phase2-interface
+    edit "{6}"
+        set phase1name "{0}_1"
+        set proposal aes128-sha1
+        set dhgrp 2
+        set auto-negotiate enable
+        set src-addr-type name
+        set dst-addr-type name
+        set keylifeseconds 3600
+        set src-name "{10}"
+        set dst-name "{11}"
+    next
+    edit "{7}"
+        set phase1name "{0}_2"
+        set proposal aes128-sha1
+        set dhgrp 2
+        set auto-negotiate enable
+        set src-addr-type name
+        set dst-addr-type name
+        set keylifeseconds 3600
+        set src-name "{10}"
+        set dst-name "{11}"
+    next
+end
+## END ipsec phases
+
+## START ipsec-aggregate
+# ipsec-aggregate redundant
+config system ipsec-aggregate
+    edit {0}
+        set member {0}_1 {0}_2
+        set algorithm redundant
+end
+## END ipsec-aggregate
+
+## START static route
+# static route
+config router static
+    edit 0
+        set dst {0}
+        set device "{1}"
+        set comment "{1} aws ipsec tunnel"
+    next
+end
+## END static route
+
+## START firewall policies
+# Firewall policies
+# Allow all from local to AWS tunnel
+config firewall policy
+    edit 0
+        set name "AWS-{0}-{1}"
+        set srcintf "{0}"
+        set dstintf "{1}"
+        set action accept
+        set srcaddr "all"
+        set dstaddr "all"
+        set schedule "always"
+        set service "ALL"
+        set logtraffic all
+        set captive-portal-exempt enable
+        set comments "Allow traffic for AWS IPsec tunnel on {0}"
+    next
+# Allow all from AWS tunnel to local
+    edit 0
+        set name "{1}-AWS-{0}"
+        set srcintf "{1}"
+        set dstintf "{0}"
+        set action accept
+        set srcaddr "all"
+        set dstaddr "all"
+        set schedule "always"
+        set service "ALL"
+        set logtraffic all
+        set captive-portal-exempt enable
+        set comments "Allow traffic for AWS IPsec tunnel on {0}"
+    next
+end
+## END firewall policies
+
+## START create address subnet
+config firewall address
+    edit "{0}"
+        set color 9
+        set subnet {1}
+    next
+    edit "{2}"
+        set color 9
+        set subnet {3}
+    next
+end
+## END create address subnet
