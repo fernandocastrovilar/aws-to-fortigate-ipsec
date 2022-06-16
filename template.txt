@@ -79,13 +79,13 @@ end
 
 ## START firewall policies
 # Firewall policies
-# Allow all from local to AWS tunnel
+# Deny all from local to AWS tunnel
 config firewall policy
     edit 0
         set name "AWS-{0}-{1}"
         set srcintf "{0}"
         set dstintf "{1}"
-        set action accept
+        set action deny
         set srcaddr "all"
         set dstaddr "all"
         set schedule "always"
@@ -94,12 +94,12 @@ config firewall policy
         set captive-portal-exempt enable
         set comments "Allow traffic for AWS IPsec tunnel on {0}"
     next
-# Allow all from AWS tunnel to local
+# Deny all from AWS tunnel to local
     edit 0
         set name "{1}-AWS-{0}"
         set srcintf "{1}"
         set dstintf "{0}"
-        set action accept
+        set action deny
         set srcaddr "all"
         set dstaddr "all"
         set schedule "always"
