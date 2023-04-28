@@ -5,6 +5,9 @@ import re
 
 # Basic data input
 ipsec_name = input("Enter tunnel name: ")
+while (len(ipsec_name) + 2) >= 15:
+    print("String value is too long. the size is", len(ipsec_name), ", the limit is 13")
+    ipsec_name = input("Enter tunnel name: ")
 aws_file = input("Enter aws config file path: ")
 public_interface = input("Enter FortiGate public interface name: ")
 public_gw = input("Enter FortiGate public ip (ip on interface {0}): ".format(public_interface))
